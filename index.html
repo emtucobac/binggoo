@@ -226,7 +226,8 @@ td.error {
 
 <div class="game-wrapper">
 
-    <div class="game-title">🎉 BINGO ONLINE 🎉</div>
+    <div class="game-title" id="gameTitle">🎉 BINGO ONLINE 🎉</div>
+
 
     <!-- MENU -->
     <div id="menu">
@@ -435,6 +436,8 @@ function joinRoom() {
 }
 
 function startGame() {
+  document.getElementById("gameTitle").style.display = "none";
+    
     document.getElementById("menu").style.display = "none";
     document.getElementById("game").style.display = "block";
     document.getElementById("roomIdText").innerText = roomId;
