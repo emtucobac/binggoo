@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Bingo Online</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    --glass: rgba(255,255,255,0.12);
+    --border: rgba(255,255,255,0.25);
+    --blue: #00e5ff;
+    --green: #00e676;
+    --red: #ff1744;
+    --gold: #ffd700;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    font-weight: 700;
+    text-shadow: 0 0 15px var(--blue);
+}
+
+#menu, #game {
+    width: 100%;
+    max-width: 420px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+input, button {
+    width: 100%;
+    border-radius: 12px;
+    border: none;
+    padding: 12px;
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+input {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+input::placeholder {
+    color: #ddd;
+}
+
+button {
+    background: linear-gradient(135deg, #00e5ff, #2979ff);
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#number {
+    font-size: 72px;
+    font-weight: 700;
+    margin: 10px 0;
+    color: var(--red);
+    text-shadow:
+        0 0 10px #ff5252,
+        0 0 30px #ff1744;
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+table {
+    margin: auto;
+    border-spacing: 10px;
+}
+
+td {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(145deg, #1e88e5, #0d47a1);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:
+        inset 2px 2px 6px rgba(255,255,255,0.3),
+        inset -4px -4px 8px rgba(0,0,0,0.6),
+        0 6px 12px rgba(0,0,0,0.5);
+    transition: 0.2s;
+}
+
+td:hover {
+    transform: translateY(-4px);
+}
+
+td.checked {
+    background: linear-gradient(145deg, #00e676, #00c853);
+    color: #000;
+    box-shadow:
+        0 0 15px #00e676,
+        inset 2px 2px 6px rgba(255,255,255,0.4);
+}
+
+td.error {
+    background: linear-gradient(145deg, #ff5252, #d50000);
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+#winner {
+    margin-top: 15px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 20px var(--gold);
+    animation: win 1s infinite alternate;
+}
+
+@keyframes win {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+/* ===== GAME WRAPPER ===== */
+.game-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 160px; /* đẩy khung xuống để chừa chỗ cho title */
+}
+.game-title {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    padding: 18px 46px;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 2px;
+
+    color: #fff;
+
+    background: radial-gradient(
+        circle at top,
+        #4fc3f7,
+        #2979ff
+    );
+
+    border-radius: 999px;
+
+    box-shadow:
+        0 18px 40px rgba(0, 229, 255, 0.8),
+        0 0 80px rgba(0, 229, 255, 0.9),
+        inset 0 3px 10px rgba(255,255,255,0.5);
+
+    text-shadow:
+        0 3px 14px rgba(0,0,0,0.7);
+
+    z-index: 9999;
+
+    animation: floatTitle 3s ease-in-out infinite;
+}
+
+
+/* ===== FLOAT ===== */
+@keyframes floatTitle {
+    0%   { transform: translate(-50%, 0); }
+    50%  { transform: translate(-50%, -8px); }
+    100% { transform: translate(-50%, 0); }
+}
+
+/* ===== GLOW GRADIENT MOVE ===== */
+@keyframes glowMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+
+</style>
+
+
+</head>
+
+<body>
+
+<div class="game-wrapper">
+
+    <div class="game-title">🎉 BINGO ONLINE 🎉</div>
+
+    <!-- MENU -->
+    <div id="menu">
+
+    <input id="nameInput" placeholder="Nhập tên của bạn"><br><br>
+    <button onclick="createRoom()">Tạo Room</button><br><br>
+    <input id="roomInput" placeholder="Nhập mã room">
+    <button onclick="joinRoom()">Join Room</button>
+</div>
+
+
+<!-- GAME -->
+<div id="game" style="display:none">
+
+    <p><b>Room:</b> <span id="roomIdText"></span></p>
+
+    <h3>Vé Bingo của bạn</h3>
+    <table id="bingo"></table>
+
+    <br>
+    <button id="randomBtn" onclick="randomBingo()">🔁 Random vé</button>
+    <button id="lockBtn" onclick="lockBingo()">✅ Chốt vé</button>
+
+    <p id="lockStatus"></p>
+
+    <hr>
+    <h3>Số đang quay</h3>
+    <div id="number">--</div>
+    <div id="hostPanel" style="display:none">
+        <h3>Host</h3>
+        <button id="rollBtn" onclick="roll()" disabled>
+            ⏳ Chờ người chơi
+        </button>
+    </div>
+
+    <p id="history"></p>
+    <p id="winner"></p>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+/* ========= FIREBASE CONFIG ========= */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "smart-bedroom-f1059.firebaseapp.com",
+  databaseURL: "https://smart-bedroom-f1059-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-bedroom-f1059"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ========= GLOBAL ========= */
+let playerName = "";
+
+let calledNumbers = [];
+let roomId = "";
+let isHost = false;
+let locked = false;
+let bingoCard = [];
+let numbers = [];
+let history = [];
+let checked = Array(5).fill(0).map(() => Array(5).fill(false));
+let hasWon = false;
+let playerId = "P" + Math.random().toString(36).substr(2, 8);
+
+/* ========= UTILS ========= */
+function randomRoomId() {
+    return Math.random().toString(36).substr(2, 6).toUpperCase();
+}
+function randomRange(min, max, count) {
+    let arr = [];
+    while (arr.length < count) {
+        let n = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!arr.includes(n)) arr.push(n);
+    }
+    return arr;
+}
+
+/* ========= BINGO ========= */
+function randomBingo() {
+    if (locked) return alert("Bạn đã chốt vé!");
+
+    const cols = [
+        randomRange(1, 15, 5),
+        randomRange(16, 30, 5),
+        randomRange(31, 45, 5),
+        randomRange(46, 60, 5),
+        randomRange(61, 75, 5)
+    ];
+
+    bingoCard = [];
+    checked = Array(5).fill(0).map(() => Array(5).fill(false));
+    hasWon = false;
+
+    for (let r = 0; r < 5; r++) {
+        let row = [];
+        for (let c = 0; c < 5; c++) row.push(cols[c][r]);
+        bingoCard.push(row);
+    }
+    renderBingo();
+}
+
+function renderBingo() {
+    const table = document.getElementById("bingo");
+    table.innerHTML = "";
+    bingoCard.forEach((row, r) => {
+        const tr = document.createElement("tr");
+        row.forEach((n, c) => {
+            const td = document.createElement("td");
+            td.innerText = n;
+            if (checked[r][c]) td.classList.add("checked");
+            td.onclick = () => toggleCell(r, c, td);
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+}
+
+function toggleCell(r, c, td) {
+    if (!locked || hasWon) return;
+
+    const num = bingoCard[r][c];
+
+    // ❌ chưa được quay
+    if (!calledNumbers.includes(num)) {
+        td.classList.add("error");
+        setTimeout(() => td.classList.remove("error"), 1000);
+        return;
+    }
+
+    // ✅ hợp lệ
+    checked[r][c] = !checked[r][c];
+    td.classList.toggle("checked");
+
+    if (checkWin()) {
+        hasWon = true;
+        db.ref("rooms/" + roomId).update({
+    winner: playerName
+});
+
+    }
+}
+
+
+
+function checkWin() {
+    for (let r = 0; r < 5; r++)
+        if (checked[r].every(v => v)) return true;
+
+    for (let c = 0; c < 5; c++)
+        if (checked.map(r => r[c]).every(v => v)) return true;
+
+    if ([0,1,2,3,4].every(i => checked[i][i])) return true;
+    if ([0,1,2,3,4].every(i => checked[i][4 - i])) return true;
+
+    return false;
+}
+
+function lockBingo() {
+    locked = true;
+    document.getElementById("lockStatus").innerText =
+        "✅ Vé đã chốt – chờ host bắt đầu";
+
+    document.getElementById("randomBtn").disabled = true;
+    document.getElementById("lockBtn").disabled = true;
+
+    db.ref("rooms/" + roomId + "/players/" + playerId).update({
+        locked: true,
+        card: bingoCard
+    });
+}
+
+/* ========= ROOM ========= */
+function createRoom() {
+    playerName = document.getElementById("nameInput").value.trim();
+    if (!playerName) return alert("Vui lòng nhập tên!");
+    
+    roomId = randomRoomId();
+    isHost = true;
+
+    db.ref("rooms/" + roomId).set({
+        started: false,
+        currentNumber: "--",
+        history: "",
+        winner: ""
+    });
+
+    startGame();
+}
+
+function joinRoom() {
+    playerName = document.getElementById("nameInput").value.trim();
+    if (!playerName) return alert("Vui lòng nhập tên!");
+
+    roomId = document.getElementById("roomInput").value.trim().toUpperCase();
+    if (!roomId) return alert("Nhập mã room!");
+
+    db.ref("rooms/" + roomId).once("value").then(snap => {
+        if (!snap.exists()) return alert("Room không tồn tại!");
+        startGame();
+    });
+}
+
+function startGame() {
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    document.getElementById("roomIdText").innerText = roomId;
+
+    db.ref("rooms/" + roomId + "/players/" + playerId).set({
+    locked: false,
+    name: playerName
+    });
+
+
+    if (isHost) {
+        document.getElementById("hostPanel").style.display = "block";
+        numbers = Array.from({ length: 75 }, (_, i) => i + 1);
+        listenPlayers();
+    }
+
+    randomBingo();
+    listenRoom();
+    listenWinner();
+}
+
+/* ========= LISTEN ========= */
+function listenRoom() {
+    db.ref("rooms/" + roomId).on("value", snap => {
+        const d = snap.val();
+        if (!d) return;
+
+        document.getElementById("number").innerText = d.currentNumber;
+        document.getElementById("history").innerText =
+            "Đã ra: " + d.history;
+
+        // ✅ THÊM
+        if (d.history) {
+            calledNumbers = d.history.split(", ").map(n => parseInt(n));
+        }
+    });
+}
+
+function listenPlayers() {
+    db.ref("rooms/" + roomId + "/players").on("value", snap => {
+        if (!isHost) return;
+
+        const players = snap.val();
+        if (!players) return;
+
+        let total = 0, lockedCount = 0;
+        Object.values(players).forEach(p => {
+            total++;
+            if (p.locked) lockedCount++;
+        });
+
+        const rollBtn = document.getElementById("rollBtn");
+
+        if (total > 0 && total === lockedCount) {
+            rollBtn.disabled = false;
+            rollBtn.innerText = "🎲 Bắt đầu quay";
+        } else {
+            rollBtn.disabled = true;
+            rollBtn.innerText = `⏳ Chờ người chơi (${lockedCount}/${total})`;
+        }
+    });
+}
+
+function listenWinner() {
+    db.ref("rooms/" + roomId + "/winner").on("value", snap => {
+        if (snap.val()) {
+            document.getElementById("winner").innerText =
+                "🏆 Người thắng: " + snap.val();
+            if (isHost) document.getElementById("rollBtn").disabled = true;
+        }
+    });
+}
+
+/* ========= HOST ROLL ========= */
+function roll() {
+    if (!isHost) return;
+
+    if (numbers.length === 0) return alert("Hết số!");
+    const i = Math.floor(Math.random() * numbers.length);
+    const num = numbers.splice(i, 1)[0];
+    history.push(num);
+
+    db.ref("rooms/" + roomId).update({
+        started: true,
+        currentNumber: num,
+        history: history.join(", ")
+    });
+}
+</script>
+
+</body>
+</html>
